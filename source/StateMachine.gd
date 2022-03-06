@@ -112,6 +112,9 @@ func restore_previous_state():
     current_state_handler = previous_state_handler
 
     emit_signal("state_restored", current_state_name)
+
+func transition_to(state_name):
+    transition_to = state_name
     
 func transition_to_state(state_name):
     # store for ability to go back one layer, this could later become a stack for a
