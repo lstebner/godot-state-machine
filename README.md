@@ -1,8 +1,6 @@
 # StateMachine
 
-StateMachine is a Godot script class that implements a finite state machine for generic use.
-
-This document is a work in progress!
+StateMachine is a Godot script class that implements a finite state machine for generic use. I built this for use in my own personal projects and am making it free to use for anyone else out there working on a game using Godot.
 
 ## When to use
 
