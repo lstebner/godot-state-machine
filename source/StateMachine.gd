@@ -1,7 +1,6 @@
 extends Node
 
 signal state_changed(new_state)
-signal state_restored(state)
 
 class_name StateMachine
 
@@ -111,7 +110,7 @@ func restore_previous_state():
     set_current_state(previous_state_name)
     current_state_handler = previous_state_handler
 
-    emit_signal("state_restored", current_state_name)
+    emit_signal("state_changed", current_state_name)
 
 func transition_to(state_name):
     transition_to = state_name
