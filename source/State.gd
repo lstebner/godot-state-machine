@@ -15,6 +15,10 @@ var context = {}
 # call this to trigger StateMachine transition to next state
 func complete(transition_key = null):
     emit_signal("is_complete", transition_key)
+
+# for loading contextual values to resume an existing state
+func load_context(saved_context):
+    context = saved_context
     
 # called from the StateMachine _process method
 func update(_delta, _owner_obj):
@@ -23,10 +27,6 @@ func update(_delta, _owner_obj):
 # called from _input
 func handle_input(_event, _owner_obj):
     pass
-
-# for loading contextual values to resume an existing state
-func load_context(saved_context):
-    context = saved_context
 
 # called when state is created
 func init(_owner_obj):
