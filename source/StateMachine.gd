@@ -38,6 +38,10 @@ func _process(delta):
     
     if current_state_handler and current_state_handler.has_method("update"):
         current_state_handler.update(delta, owner)
+
+func _physics_process(delta):
+    if current_state_handler and current_state_handler.has_method("physics_update"):
+        current_state_handler.physics_update(delta, owner)
         
 func _input(event):
     if current_state_handler and current_state_handler.has_method("handle_input"):
