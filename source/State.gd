@@ -21,17 +21,21 @@ func load_context(saved_context):
     context = saved_context
     
 # called from the StateMachine _process method
-func update(_delta, _owner_obj):
+func update(_delta, _owner):
+    pass
+
+# called from StateMachine._physics_process 
+func physics_update(_delta, _owner):
     pass
 
 # called from _input
-func handle_input(_event, _owner_obj):
+func handle_input(_event, _owner):
     pass
 
 # called when state is created
-func init(_owner_obj):
+func init(_owner):
     pass
 
 # called before transitioning to a new state
-func exit(_owner_obj):
+func exit(_owner):
     pass
