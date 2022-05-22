@@ -73,7 +73,7 @@ We will build out an object like so:
 ```gdscript
 {
     state_id: {
-        "transition_to": some_other_state_id,
+        "next_state": some_other_state_id,
         "state_class": State,
     },
     # repeat for as many states as needed
@@ -82,11 +82,11 @@ We will build out an object like so:
 
 If you're using an enum, the keys in this object should be the enum values. The state machine class does not care if you just use strings, your own integers, but it's more error prone to do this compared to using the enum approach.
 
-The "transition_to" field in the object must be one of the other keys in this object; this property indicates what next state to transition to when this current one completes*. This can be omitted if the state does not transition to any other state. This would be common with states like "death" where the node is cleared immediately after entering the state.
+The "next_state" key in the object must be one of the other state_ids; this property indicates what state to transition to next when this current one completes. This can be omitted if the state does not transition to any other state. This would be common with states like "death" where the node is cleared immediately after entering the state.
 
 The "state_class" is a class to instance for use when this state is active. You won't typically use the base `State` class directly since it is just an interface, but instead use an extension of it that implements the specific state behavior needed. More information about how to use this is available in the "State class" section below.
 
-*there's an asterisk up there because the value of "transition_to" can actually be an object if there are multiple states that could be transitioned into. More about this further down as well.
+If there are multiple states that are available as the "next state", use the key "transitions" instead. The value would be an object where the key is the "name" you want to give the transition, and the value is the state_id to transition to. This is shown in some of the examples below.
 
 Here's the same states from the manual transitions example being configured for automated transitions.
 
@@ -104,18 +104,18 @@ func _ready():
     var states = {
         STATES.IDLE: {
             # IDLE can transition to multiple states depending on input
-            "transition_to": {
+            "transitions": {
                 "walk": STATES.WALK,
                 "jump": STATES.JUMP,
             },
             "state_class": IdleState,
         },
         STATES.WALK: {
-            "transition_to": STATES.IDLE,
+            "next_state": STATES.IDLE,
             "state_class": WalkState,
         },
         STATES.JUMP: {
-            "transition_to": STATES.IDLE,
+            "next_state": STATES.IDLE,
             "state_class": JumpState,
         },
     }
@@ -138,7 +138,7 @@ class JumpState extends State:
 
 When the state is initialized, `init` is called with `owner` node. For a state like `JumpState`, this is where we could tell the node to do its jump action. Then, in `update` (which is called every frame like `_process`) we can check for the owner to have made it back to the floor, at which point we call the method `complete` (which is in the `State` base class) to emit a signal to tell the `StateMachine` to transition to the next state.
 
-In this example, `transition_to` only specifies one place that `STATES.JUMP` can go to, which is back to `STATES.IDLE`, so `complete` does not require any args.
+When using `next_state` the call to `complete` doesn't require any additional args.
 
 Now, let's look at how that `IdleState` could be implemented since it's a bit more complex.
 
@@ -155,7 +155,7 @@ class IdleState extends State:
                 complete("walk")
 ```
 
-This state isn't really concerned about doing anything every frame, but instead is just waiting for input, validating that input can be done (if needed), and initiating the action. In this case it can go to multiple states from IDLE, so the call to `complete` specifies which key from the `transition_to` field to reference.
+This state isn't really concerned about doing anything every frame, but instead is just waiting for input, validating that input can be done (if needed), and initiating the action. In this case it can go to multiple states from IDLE, so the call to `complete` specifies which key from the `transitions` field to reference.
 
 The WalkState implementation would be something of a mix of the two. It could handle updating the position based on the walk speed inside of the `update` method, while also using `handle_input` to make sure the walk button is still held, and what to do if it's released (back to idle), or if the direction is changed. It also might handle going straight into JUMP in a real use case, and JUMP might also be able to go back into WALK. Dealing with those complexities and beyond is where the StateMachine really shines!
 
@@ -213,14 +213,14 @@ class OneTakeState extends State:
 
 ### transitioning back to a previous state
 
-Certain states are not going to fit into a flow that can be configured ahead of time and instead might interrupt multiple states, and want to return back to that previous state upon completion. An example could be something like a momentary freeze when damaged. Being damaged could happen while running, walking, jumping, swimming, etc. To handle this there is a special value which can be used, `StateMachine.PREVIOUS`. Using this as the "transition_to" value will cause the state machine to return to the previous state when this one completes.
+Certain states are not going to fit into a flow that can be configured ahead of time and instead might interrupt multiple states, and want to return back to that previous state upon completion. An example could be something like a momentary freeze when damaged. Being damaged could happen while running, walking, jumping, swimming, etc. To handle this there is a special value which can be used, `StateMachine.PREVIOUS`. Using this as the "next_state" value will cause the state machine to return to the previous state when this one completes.
 
 Currently, this is only implemented one level deep, so be careful not to return to a state which is also trying to return to a "previous" state. A future enhancemet would be to keep a larger stack of the history, but I haven't had a need for this yet.
 
 ```gdscript
 {
     "state_class": DamagedState,
-    "transition_to": StateMachine.PREVIOUS,
+    "next_state": StateMachine.PREVIOUS,
 }
 ```
 

@@ -63,7 +63,13 @@ func transition_to_initial_state():
     transition_to_state(initial_state)
     
 func transition_to_next_state(transition_key = null):
-    if current_state.has("transition_to") and (transition_to == null or transition_to == current_state_name):
+    if transition_to != null and transition_to != current_state_name: return
+    
+    if current_state.has("next_state"):
+        transition_to = current_state.next_state
+    elif current_state.has("transitions") and current_state.transitions.has(transition_key):
+        transition_to = current_state.transitions[transition_key]
+    elif current_state.has("transition_to"): # DEPRECATED - left for backwards compatibility
         if transition_key and current_state.transition_to.has(transition_key):
             transition_to = current_state.transition_to[transition_key]
         else:
