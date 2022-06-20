@@ -15,8 +15,11 @@ var previous_state_handler = null
 var initial_state = null
 var transition_to = null
 var initialized = false
+var cache_states = false
 
 const PREVIOUS = -1
+
+var states_cache : Dictionary = {}
 
 func _process(delta):
     if !is_enabled: return
@@ -36,12 +39,12 @@ func _process(delta):
             
         transition_to = null
     
-    if current_state_handler and current_state_handler.has_method("update"):
-        current_state_handler.update(delta, owner)
+    if current_state_handler and current_state_handler.has_method("process"):
+        current_state_handler.process(delta, owner)
 
 func _physics_process(delta):
-    if current_state_handler and current_state_handler.has_method("physics_update"):
-        current_state_handler.physics_update(delta, owner)
+    if current_state_handler and current_state_handler.has_method("physics_process"):
+        current_state_handler.physics_process(delta, owner)
         
 func _input(event):
     if current_state_handler and current_state_handler.has_method("handle_input"):
@@ -52,6 +55,8 @@ func configure(states_obj = {}, initial_state_value = 0):
     # or a custom configured object to support autonomy in state changes
     for key in states_obj.keys():
         if states_obj[key] is Dictionary:
+            if states_obj[key].has("transition"): # check for commonly made typo
+                print("StateMachine.configure warning - %s configuration has property 'transition' instead of 'transitions'" % owner.name)
             states[key] = states_obj[key]
         else:
             states[states_obj[key]] = {}
@@ -74,6 +79,7 @@ func transition_to_next_state(transition_key = null):
             transition_to = current_state.transition_to[transition_key]
         else:
             transition_to = current_state.transition_to
+        
 
 func transition_to_previous_state():
     if previous_state_name:
@@ -140,7 +146,10 @@ func transition_to_state(state_name):
     
     # instance handler for current state if there is one
     if current_state.has("state_class") and current_state.state_class != null:
-        current_state_handler = current_state.state_class.new()
+        if cache_states == false or states_cache.has(state_name) == false:
+            states_cache[state_name] = current_state.state_class.new()
+            
+        current_state_handler = states_cache[state_name]
         
         # call init on the new state if it has one
         if current_state_handler.has_method("init"):
