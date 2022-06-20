@@ -75,6 +75,7 @@ func transition_to_next_state(transition_key = null):
     elif current_state.has("transitions") and current_state.transitions.has(transition_key):
         transition_to = current_state.transitions[transition_key]
     elif current_state.has("transition_to"): # DEPRECATED - left for backwards compatibility
+        print("state configuration using 'transition_to' is deprecated, please update to use 'next_state' or 'transitions'")
         if transition_key and current_state.transition_to.has(transition_key):
             transition_to = current_state.transition_to[transition_key]
         else:
