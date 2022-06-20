@@ -16,7 +16,13 @@ There are two main parts to this, the `StateMachine`, and the `State`. The `Stat
 
 You'll need to add `source/StateMachine.gd` and `source/State.gd` to your project*. I usually add them in a directory like `res://helpers/`, but you can put them wherever you like. Since they set a `class_name`, they can be globally referenced by name no matter where you decide to put them.
 
-* \*if for some reason you don't want to add two dependencies to your project, you can leave out `State.gd` and implement the same interface yourself. You're somewhat on your own if you go this route, just make sure you satisfy the methods that `StateMachine` needs in order to work.
+```
+ *if for some reason you don't want to add two dependencies to your project, you can leave out `State.gd` and implement the same interface yourself. You're somewhat on your own if you go this route, just make sure you satisfy the methods that `StateMachine` needs in order to work.
+```
+
+If you added it to a node you can get a reference like so:
+
+`onready var state_machine = $StateMachine`
 
 ### Setup
 
