@@ -131,12 +131,12 @@ class JumpState extends State:
     func init(owner):
         owner.jump()
 
-    func update(delta, owner):
+    func process(delta, owner):
         if owner.is_on_floor():
             complete()
 ```
 
-When the state is initialized, `init` is called with `owner` node. For a state like `JumpState`, this is where we could tell the node to do its jump action. Then, in `update` (which is called every frame like `_process`) we can check for the owner to have made it back to the floor, at which point we call the method `complete` (which is in the `State` base class) to emit a signal to tell the `StateMachine` to transition to the next state.
+When the state is initialized, `init` is called with `owner` node. For a state like `JumpState`, this is where we could tell the node to do its jump action. Then, in `process` (which is called every frame just like `_process`) we can check for the owner to have made it back to the floor, at which point we call the method `complete` (which is in the `State` base class) to emit a signal to tell the `StateMachine` to transition to the next state.
 
 When using `next_state` the call to `complete` doesn't require any additional args.
 
@@ -157,7 +157,7 @@ class IdleState extends State:
 
 This state isn't really concerned about doing anything every frame, but instead is just waiting for input, validating that input can be done (if needed), and initiating the action. In this case it can go to multiple states from IDLE, so the call to `complete` specifies which key from the `transitions` field to reference.
 
-The WalkState implementation would be something of a mix of the two. It could handle updating the position based on the walk speed inside of the `update` method, while also using `handle_input` to make sure the walk button is still held, and what to do if it's released (back to idle), or if the direction is changed. It also might handle going straight into JUMP in a real use case, and JUMP might also be able to go back into WALK. Dealing with those complexities and beyond is where the StateMachine really shines!
+The WalkState implementation would be something of a mix of the two. It could handle updating the position based on the walk speed inside of the `process` method, while also using `handle_input` to make sure the walk button is still held, and what to do if it's released (back to idle), or if the direction is changed. It also might handle going straight into JUMP in a real use case, and JUMP might also be able to go back into WALK. Dealing with those complexities and beyond is where the StateMachine really shines!
 
 #### state_changed signal
 
@@ -174,7 +174,7 @@ func _ready():
 
 func _on_state_changed(new_state):
     # do stuff based on what that new_state is, if needed
-    update() # trigger a redraw, if needed
+    update() # trigger a redraw, if desired
 ```
 
 ## State interface
@@ -186,7 +186,8 @@ Several of the methods are called from a standard gdscript method and so they re
 | method name | purpose | args | called when.. |
 |-------------|---------|------|---------------|
 | `init`        | set up any initial context values | `owner` node ref | the state is initialized |
-| `update`      | logic processing and calling `complete` | `delta` since the last update, and an `owner` node ref | called from `StateMachine._process` when this state is the `current_state_handler` |
+| `process`      | logic processing and calling `complete` | `delta` since the last update, and an `owner` node ref | called from `StateMachine._process` when this state is the `current_state_handler` |
+| `physics_process`      | if process logic needs synced with physics, use this instead of `process` | `delta` since the last update, and an `owner` node ref | called from `StateMachine._physics_process` when this state is the `current_state_handler` |
 | `handle_input` | state specific input handling | the input `event`, and an `owner` node ref | called from `StateMachine._input` when this state is `current_state_handler` |
 | `exit` | do any cleanup needed | `owner` node ref | when `StateMachine` is transitioning out of this state |
 
@@ -205,13 +206,23 @@ The `State` class only relies on one instance variable so that it is easy to sav
 
 In order for a state class to tell the state machine it has completed, it needs to emit the signal "is_complete". The `State` base class provides this functionality through the `complete` method. This method also takes an argument for the "key" to transition with if there are more than one possible target states.
 
+If the state configuration set a `"next_state"` then you don't need any args for calling `complete`
+
 ```gdscript
 class OneTakeState extends State:
-    func update(_delta, _owner_ref):
+    func process(_delta, _owner_ref):
         complete()
 ```
 
-### transitioning back to a previous state
+If there are multiple `"transitions"` then complete needs told where to go next
+
+```gdscript
+class MiddleState extends State:
+    func process(_delta, _owner_ref):
+        complete("next") // "next" must be a key in the "transitions" object
+```
+
+### transitioning back to the previous state
 
 Certain states are not going to fit into a flow that can be configured ahead of time and instead might interrupt multiple states, and want to return back to that previous state upon completion. An example could be something like a momentary freeze when damaged. Being damaged could happen while running, walking, jumping, swimming, etc. To handle this there is a special value which can be used, `StateMachine.PREVIOUS`. Using this as the "next_state" value will cause the state machine to return to the previous state when this one completes.
 
@@ -234,7 +245,7 @@ class RespawnDelayState extends State:
         context.time_elapsed = 0
         context.wait_time = owner_ref.respawn_wait_time
 
-    func update(delta, owner_ref):
+    func process(delta, owner_ref):
         context.time_elapsed += delta
 
         if context.time_elapsed >= context.wait_time:
@@ -279,6 +290,12 @@ func hit(damage_amount):
     else:
         state_machine.transition_to(STATES.HIT)
 ```
+
+## Cache
+
+By default, `StateMachine` will create a new instance of the specific state class it needs every time the state changes. This behavior can be changed by setting `state_machine_instance.cache_states = true`. When cache is enabled it will only create state class instances once, and then will use that any time it needs to transition to the state. 
+
+If using cache make sure that any local variables are set to their defaults inside the state's `init` function, otherwise you will see "resume state" behavior, though this may be desirable depending on what you're trying to do.
 
 ## Issues
 
