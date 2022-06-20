@@ -20,12 +20,12 @@ func complete(transition_key = null):
 func load_context(saved_context):
     context = saved_context
     
-# called from the StateMachine _process method
-func update(_delta, _owner):
+# called from the StateMachine _process method    
+func process(_delta, _owner):
     pass
 
 # called from StateMachine._physics_process 
-func physics_update(_delta, _owner):
+func physics_process(_delta, _owner):
     pass
 
 # called from _input
