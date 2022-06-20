@@ -14,15 +14,29 @@ There are two main parts to this, the `StateMachine`, and the `State`. The `Stat
 
 ### Add the files to your project
 
-You'll need to add `source/StateMachine.gd` and `source/State.gd` to your project*. I usually add them in a directory like `res://helpers/`, but you can put them wherever you like. Since they set a `class_name`, they can be globally referenced by name no matter where you decide to put them.
+You'll need to add `source/StateMachine.gd` and `source/State.gd` to your project. I usually add them in a directory like `res://scripts/`, but you can put them wherever you like. Since they set a `class_name`, they can be globally referenced by name no matter where you decide to put them.
+
+I have also provided a `StateMachine.tscn` which is nothing more than a Node which the `StateMachine.gd` script attached. Using this is the quickest and easiest way to add a state machine to any scene in a project. Once added you can get a reference to it in script like so:
+
+```gdscript
+onready var state_machine = $StateMachine
+```
+
+Then you'll need to configure it like so:
+
+```gdscript
+enum STATES {
+    ONE,
+    TWO,
+}
+
+func _ready():
+    state_machine.configure(STATES)
+    state_machine.connect("state_changed", self, "_on_state_changed")
 
 ```
- *if for some reason you don't want to add two dependencies to your project, you can leave out `State.gd` and implement the same interface yourself. You're somewhat on your own if you go this route, just make sure you satisfy the methods that `StateMachine` needs in order to work.
-```
 
-If you added it to a node you can get a reference like so:
-
-`onready var state_machine = $StateMachine`
+This is the most basic form of configuration. See the rest of this document for more info about configuration, and state classes.
 
 ### Setup
 
@@ -30,10 +44,9 @@ If you added it to a node you can get a reference like so:
 
 There are at least two ways to use `StateMachine`. They ultimately do the same thing so the preference is really your own.
 
-1. Add a new `Node` to your scene, and then attach the `StateMachine.gd` script to it.
-2. Create an instance in script, and use `add_child` to add it.
-
-I personally use the first route most often so that the scene editor can tell me if something is using state, or not. It's also easy to use multiple StateMachine's with this approach and name them all in the inspector. Either way though, you're going to need a reference to your state machine in script to configure it.
+1. (preferred way) Use the provided `StateMachine.tscn` and add it to your scene
+2. Add a new `Node` to your scene, and then attach the `StateMachine.gd` script to it.
+3. Create an instance in script, and use `add_child` to add it.
 
 #### configure - manual transitions
 
