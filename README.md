@@ -44,7 +44,7 @@ func _ready():
 	state_machine.state_changed.connect(_on_state_changed)
 ```
 
-The node calls the machine's `update`, `physics_update` and `handle_input` from its own `_process`, `_physics_process` and `_input`, so there is nothing else to do. Set `is_enabled` to `false` to pause it.
+The node calls the machine's `update`, `physics_update` and `handle_input` from its own `_process`, `_physics_process` and `_input`, so there is nothing else to do. Set `is_enabled` to `false` to pause it. If you need the underlying `StateMachine` itself, it's available as the node's `machine` property.
 
 ### Anywhere else
 
@@ -69,7 +69,7 @@ If your states use `physics_process` or `handle_input`, call `physics_update(del
 
 Every `State` hook receives the machine's `subject`. This is how a state gets access to the thing it is managing. `StateMachineNode` uses its `owner` (or its parent if it has no owner) unless you set `subject` yourself. A plain `StateMachine` uses whatever was passed to `new`, or whatever you assign to `subject`.
 
-Objects are held by weak reference, so an object that owns its own state machine and passes itself as the subject does not create a reference cycle.
+Objects are held by weak reference, so an object that owns its own state machine and passes itself as the subject does not create a reference cycle. This also means the machine does not keep its subject alive: if nothing else holds a reference to the subject, it is freed and your states receive `null`. Keep a reference to it somewhere else, such as a variable on the object that owns the machine. Values that aren't objects, like a Dictionary, are held normally.
 
 ### Configure: manual transitions
 
@@ -207,7 +207,7 @@ A state without a `"state_class"` can still be completed from outside with `tran
 
 ### When transitions happen
 
-Transitions from `complete`, `transition_to`, `transition_to_next_state` and `transition_to_previous_state` are queued and happen at the start of the machine's next update. Only one transition can be queued at a time:
+Transitions from `complete`, `transition_to`, `transition_to_next_state` and `transition_to_previous_state` are queued and happen at the start of the machine's next update. The exception is calling `transition_to_next_state` before the machine's first update: it enters the initial state immediately, then queues the transition from there. Only one transition can be queued at a time:
 
 - `transition_to(state)` replaces anything already queued, including a transition queued by a completed state.
 - A state completing does not replace a transition that was already queued.
@@ -299,7 +299,7 @@ There are a few handy methods to know about for controlling the machine and gath
 | `transition_to_initial_state` | enter the initial state now | none |
 | `transition_to` | queue a change to a new state | the `state_id` to transition to |
 | `transition_to_state_now` | change to a new state immediately | the `state_id` to transition to |
-| `transition_to_next_state` | queue the current state's configured transition | an optional `transition_key` |
+| `transition_to_next_state` | queue the current state's configured transition (entering the initial state first if the machine hasn't started) | an optional `transition_key` |
 | `transition_to_previous_state` | queue a return to the previous state | none |
 | `get_current_state` | get the id of the current state | none |
 | `get_previous_state` | get the id of the state the machine was in before this one | none |
