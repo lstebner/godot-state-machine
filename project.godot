@@ -1,0 +1,9 @@
+; This project file only exists so the tests can run. To use the state machine
+; in your own game, copy the files in source/ into your project.
+
+config_version=5
+
+[application]
+
+config/name="godot-state-machine"
+config/features=PackedStringArray("4.7")
