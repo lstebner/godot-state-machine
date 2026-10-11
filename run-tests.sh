@@ -5,6 +5,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+# the addon folder ships its own copies of these, which must match
+for file in README.md LICENSE; do
+	if ! cmp -s "$file" "addons/state_machine/$file"; then
+		echo "addons/state_machine/$file is out of date. Run: cp $file addons/state_machine/$file" >&2
+		exit 1
+	fi
+done
+
 if [[ -n "${GODOT:-}" ]]; then
 	godot_cmd=($GODOT)
 elif command -v godot >/dev/null; then

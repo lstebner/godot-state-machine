@@ -25,7 +25,7 @@ In v1, `StateMachine` extended `Node` and ran itself from `_process`, `_physics_
 
 - `StateMachine` extends `RefCounted` and does nothing on its own. Call `update(delta)` on it, plus `physics_update(delta)` and `handle_input(event)` if your states use them. This lets objects that are not nodes, like data models, use it without having to add a node to the tree or free one.
 - `StateMachineNode` is a new `Node` that owns a `StateMachine` and calls those methods from its own `_process`, `_physics_process` and `_input`. It has the same methods as `StateMachine`, plus a `machine` property for the machine itself. Use it wherever you used the v1 node.
-- `StateMachine.tscn` now contains a `StateMachineNode`, and its script path is `res://source/StateMachineNode.gd`. If you keep the files somewhere else, update that path, or add a `StateMachineNode` from the "Add Child Node" dialog instead.
+- `StateMachine.tscn` now contains a `StateMachineNode`, and its script path is `res://addons/state_machine/StateMachineNode.gd`. If you keep the files somewhere else, update that path, or add a `StateMachineNode` from the "Add Child Node" dialog instead.
 - `is_enabled` is now on `StateMachineNode` only. To pause a plain `StateMachine`, stop calling `update`.
 
 | v1 | v2 |
