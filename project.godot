@@ -1,5 +1,5 @@
 ; This project file only exists so the tests can run. To use the state machine
-; in your own game, copy the files in source/ into your project.
+; in your own game, copy the addons/state_machine/ folder into your project.
 
 config_version=5
 

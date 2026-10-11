@@ -2,7 +2,7 @@
 
 StateMachine is a Godot script class that implements a finite state machine for generic use. I built this for use in my own personal projects and am making it free to use for anyone else out there working on a game using Godot.
 
-This is version 2, which requires **Godot 4** (tested with 4.7). The last version for Godot 3 is tagged [`v1.0`](https://github.com/lstebner/godot-state-machine/tree/v1.0). If you are upgrading from v1, see [MIGRATION.md](MIGRATION.md).
+This is version 2, which requires **Godot 4** (tested with 4.7). The last version for Godot 3 is tagged [`v1.0`](https://github.com/lstebner/godot-state-machine/tree/v1.0). If you are upgrading from v1, see [MIGRATION.md](https://github.com/lstebner/godot-state-machine/blob/main/MIGRATION.md).
 
 ## When to use
 
@@ -18,14 +18,14 @@ There are two main parts to this, the `StateMachine`, and the `State`. The `Stat
 
 ### Add the files to your project
 
-Copy the files in `source/` into your project. I usually add them in a directory like `res://scripts/`, but you can put them wherever you like. Since they set a `class_name`, they can be globally referenced by name no matter where you decide to put them.
+Copy the `addons/state_machine/` folder from this repository into your project as `res://addons/state_machine/`. You can put the files somewhere else if you prefer: since they set a `class_name`, they can be globally referenced by name no matter where they are.
 
 | file | what it is |
 |------|------------|
 | `StateMachine.gd` | the state machine itself |
 | `State.gd` | the base class for state classes |
 | `StateMachineNode.gd` | a `Node` that runs a `StateMachine` for you |
-| `StateMachine.tscn` | a scene containing just a `StateMachineNode`. If you put the files somewhere other than `res://source/`, update the script path in it (or just add a `StateMachineNode` from the "Add Child Node" dialog instead) |
+| `StateMachine.tscn` | a scene containing just a `StateMachineNode`. If you put the files somewhere other than `res://addons/state_machine/`, update the script path in it (or just add a `StateMachineNode` from the "Add Child Node" dialog instead) |
 
 ### In a scene
 

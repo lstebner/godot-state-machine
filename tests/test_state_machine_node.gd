@@ -44,6 +44,6 @@ func test_state_changed_is_forwarded() -> void:
 	assert_eq(changes, [S.B])
 
 func test_scene_contains_state_machine_node() -> void:
-	var instance = load("res://source/StateMachine.tscn").instantiate()
+	var instance = load("res://addons/state_machine/StateMachine.tscn").instantiate()
 	assert_true(instance is StateMachineNode)
 	instance.free()
